@@ -21,9 +21,9 @@
 </head>
 <body>
 <header>
-    <a href="{{ url('/') }}">Home</a>
+    <a href="{{ route('paste.index') }}">Home</a>
     @if (Auth::check())
-        <a href="{{ url('/dashboard') }}">My Pastes</a>
+        <a href="{{ route('paste.user_pastes') }}">My Pastes</a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
             @csrf
             <button type="submit" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer;">Logout</button>
@@ -34,6 +34,7 @@
     @endif
 </header>
 <main>
+    <hr>
     @yield('content')
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>

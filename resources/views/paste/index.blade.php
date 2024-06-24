@@ -2,6 +2,11 @@
 @extends('layouts.app')
 
 @section('content')
+
+    <h1><a href="{{ route('paste.create') }}">Create new paste</a></h1>
+
+    <hr>
+
     <h1>Recent Public Pastes</h1>
     <ul>
         @foreach ($pastes as $paste)
@@ -11,6 +16,8 @@
             </li>
         @endforeach
     </ul>
+
+    <hr>
 
     @if (Auth::check())
         <h2>My Recent Pastes</h2>

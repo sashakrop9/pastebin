@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('hash')->unique();
             $table->string('title');
-            $table->text('content');
+            $table->text('paste_content');
             $table->string('language');
             $table->timestamp('expires_at')->nullable();
             $table->enum('access', ['public', 'unlisted', 'private']);

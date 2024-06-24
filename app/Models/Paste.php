@@ -13,7 +13,7 @@ class Paste extends Model
         'user_id',
         'hash',
         'title',
-        'content',
+        'paste_content',
         'language',
         'expires_at',
         'access',

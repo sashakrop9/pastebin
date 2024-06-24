@@ -2,16 +2,16 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Create a New Paste</h1>
-    <form action="{{ url('/paste') }}" method="POST">
+    <h1>Create New Paste</h1>
+    <form action="{{ route('paste.store') }}" method="POST">
         @csrf
         <div>
             <label for="title">Title:</label>
             <input type="text" id="title" name="title" required>
         </div>
         <div>
-            <label for="content">Content:</label>
-            <textarea id="content" name="content" required></textarea>
+            <label for="paste_content">Content:</label>
+            <textarea id="paste_content" name="paste_content" required></textarea>
         </div>
         <div>
             <label for="language">Language:</label>
@@ -19,12 +19,12 @@
                 <option value="plaintext">Plain Text</option>
                 <option value="php">PHP</option>
                 <option value="javascript">JavaScript</option>
-                <!-- Добавьте другие языки по мере необходимости -->
+
             </select>
         </div>
         <div>
-            <label for="expires_in">Expires in:</label>
-            <select id="expires_in" name="expires_in" required>
+            <label for="expires_at">Expires in:</label>
+            <select id="expires_at" name="expires_at" required>
                 <option value="10min">10 minutes</option>
                 <option value="1hour">1 hour</option>
                 <option value="3hours">3 hours</option>
@@ -44,4 +44,8 @@
         </div>
         <button type="submit">Create</button>
     </form>
+
+    <hr>
+
+    <h1>тут должны быть пасты</h1>
 @endsection

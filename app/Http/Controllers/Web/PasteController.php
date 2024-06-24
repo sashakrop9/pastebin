@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Requests\PasteRequest;
 use App\Models\Paste;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -27,44 +27,6 @@ class PasteController extends Controller
         return view('paste.index', compact('pastes', 'userPastes'));
     }
 
-    public function create()
-    {
-        return view('paste.create');
-    }
-
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'language' => 'required|string',
-            'expires_in' => 'required|string',
-            'access' => 'required|string',
-        ]);
-
-        $expiresAt = match ($data['expires_in']) {
-            '10min' => Carbon::now()->addMinutes(10),
-            '1hour' => Carbon::now()->addHour(),
-            '3hours' => Carbon::now()->addHours(3),
-            '1day' => Carbon::now()->addDay(),
-            '1week' => Carbon::now()->addWeek(),
-            '1month' => Carbon::now()->addMonth(),
-            'never' => null,
-        };
-
-        $paste = Paste::create([
-            'user_id' => Auth::check() ? Auth::id() : null,
-            'hash' => Str::random(8),
-            'title' => $data['title'],
-            'content' => $data['content'],
-            'language' => $data['language'],
-            'expires_at' => $expiresAt,
-            'access' => $data['access'],
-        ]);
-
-        return redirect('/paste/' . $paste->hash);
-    }
-
     public function show($hash)
     {
         $paste = Paste::where('hash', $hash)->firstOrFail();
@@ -78,5 +40,38 @@ class PasteController extends Controller
         }
 
         return view('paste.show', compact('paste'));
+    }
+
+    public function create()
+    {
+        return view('paste.create');
+    }
+
+    public function store(PasteRequest $request)
+    {
+        $paste = new Paste;
+        $paste->title = $request->title;
+        $paste->paste_content = $request->paste_content;
+        $paste->access = $request->access;
+        $paste->language = $request->language;
+        $paste->hash = Str::random(8);
+
+        $paste->expires_at = match ($request['expires_at']) {
+            '10min' => Carbon::now()->addMinutes(10),
+            '1hour' => Carbon::now()->addHour(),
+            '3hours' => Carbon::now()->addHours(3),
+            '1day' => Carbon::now()->addDay(),
+            '1week' => Carbon::now()->addWeek(),
+            '1month' => Carbon::now()->addMonth(),
+            'never' => null,
+        };
+
+        if (Auth::check()) {
+            $paste->user_id = Auth::id();
+        }
+
+        $paste->save();
+
+        return redirect('/paste/' . $paste->hash);
     }
 }
