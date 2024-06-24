@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Requests\PasteRequest;
 use App\Models\Paste;
+use App\Services\PasteService;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -11,18 +12,17 @@ use Illuminate\Support\Facades\Auth;
 
 class PasteController extends Controller
 {
+    protected $pasteService;
+
+    public function __construct(PasteService $pasteService)
+    {
+        $this->pasteService = $pasteService;
+    }
     public function index()
     {
-        $pastes = Paste::where('access', 'public')
-            ->where(function ($query) {
-                $query->where('expires_at', '>', Carbon::now())
-                    ->orWhereNull('expires_at');
-            })
-            ->latest()
-            ->take(10)
-            ->get();
+        $pastes = $this->pasteService->getNumberLatestPublicPastes(10);
+        $userPastes = Auth::check() ? $this->pasteService->getUserPastes(Auth::id()) : [];
 
-        $userPastes = Auth::check() ? Paste::where('user_id', Auth::id())->latest()->take(10)->get() : [];
 
         return view('paste.index', compact('pastes', 'userPastes'));
     }
@@ -38,13 +38,23 @@ class PasteController extends Controller
         if ($paste->access === 'private' && (!Auth::check() || Auth::id() !== $paste->user_id)) {
             abort(403);
         }
+        $pastes = $this->pasteService->getNumberLatestPublicPastes(10);
+        $userPastes = Auth::check() ? $this->pasteService->getUserPastes(Auth::id()) : [];
 
-        return view('paste.show', compact('paste'));
+
+        return view('paste.show', compact('pastes', 'userPastes', 'paste'));
+        // return view('paste.show', compact('paste'));
+
+
     }
 
     public function create()
     {
-        return view('paste.create');
+        $pastes = $this->pasteService->getNumberLatestPublicPastes(10);
+        $userPastes = Auth::check() ? $this->pasteService->getUserPastes(Auth::id()) : [];
+
+
+        return view('paste.create', compact('pastes', 'userPastes'));
     }
 
     public function store(PasteRequest $request)

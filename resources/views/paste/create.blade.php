@@ -25,13 +25,13 @@
         <div>
             <label for="expires_at">Expires in:</label>
             <select id="expires_at" name="expires_at" required>
+                <option value="never">Never</option>
                 <option value="10min">10 minutes</option>
                 <option value="1hour">1 hour</option>
                 <option value="3hours">3 hours</option>
                 <option value="1day">1 day</option>
                 <option value="1week">1 week</option>
                 <option value="1month">1 month</option>
-                <option value="never">Never</option>
             </select>
         </div>
         <div>
@@ -45,7 +45,4 @@
         <button type="submit">Create</button>
     </form>
 
-    <hr>
-
-    <h1>тут должны быть пасты</h1>
 @endsection

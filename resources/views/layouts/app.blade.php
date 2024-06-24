@@ -36,6 +36,8 @@
 <main>
     <hr>
     @yield('content')
+    @include('layouts.partials.latest_public_pastes')
+    @include('layouts.partials.latest_user_pastes')
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
 </body>
