@@ -44,4 +44,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function pastes()
+    {
+        return $this->hasMany(Paste::class);
+    }
 }

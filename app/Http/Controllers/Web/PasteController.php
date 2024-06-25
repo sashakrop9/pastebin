@@ -5,7 +5,12 @@ namespace App\Http\Controllers\Web;
 use App\Http\Requests\PasteRequest;
 use App\Models\Paste;
 use App\Services\PasteService;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -14,10 +19,17 @@ class PasteController extends Controller
 {
     protected $pasteService;
 
+    /**
+     * @param PasteService $pasteService
+     */
     public function __construct(PasteService $pasteService)
     {
         $this->pasteService = $pasteService;
     }
+
+    /**
+     * @return Application|Factory|View|\Illuminate\Foundation\Application|\Illuminate\View\View
+     */
     public function index()
     {
         $pastes = $this->pasteService->getNumberLatestPublicPastes(10);
@@ -27,6 +39,10 @@ class PasteController extends Controller
         return view('paste.index', compact('pastes', 'userPastes'));
     }
 
+    /**
+     * @param $hash
+     * @return Application|Factory|View|\Illuminate\Foundation\Application|\Illuminate\View\View
+     */
     public function show($hash)
     {
         $paste = Paste::where('hash', $hash)->firstOrFail();
@@ -48,6 +64,9 @@ class PasteController extends Controller
 
     }
 
+    /**
+     * @return Application|Factory|View|\Illuminate\Foundation\Application|\Illuminate\View\View
+     */
     public function create()
     {
         $pastes = $this->pasteService->getNumberLatestPublicPastes(10);
@@ -57,8 +76,13 @@ class PasteController extends Controller
         return view('paste.create', compact('pastes', 'userPastes'));
     }
 
+    /**
+     * @param PasteRequest $request
+     * @return Application|\Illuminate\Foundation\Application|RedirectResponse|Redirector
+     */
     public function store(PasteRequest $request)
     {
+        //todo сделать проверку чтобы анонимные пользователи не могли делать приватную пасту
         $paste = new Paste;
         $paste->title = $request->title;
         $paste->paste_content = $request->paste_content;
@@ -84,4 +108,6 @@ class PasteController extends Controller
 
         return redirect('/paste/' . $paste->hash);
     }
+
+
 }

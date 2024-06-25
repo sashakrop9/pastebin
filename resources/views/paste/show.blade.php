@@ -6,3 +6,7 @@
     <p>Posted by {{ $paste->user ? $paste->user->name : 'Anonymous' }} on {{ $paste->created_at->format('M d, Y H:i') }}</p>
     <pre><code class="language-{{ $paste->language }}">{{ $paste->paste_content }}</code></pre>
 @endsection
+@section('pastes')
+    @include('layouts.partials.latest_public_pastes')
+    @include('layouts.partials.latest_user_pastes')
+@endsection
