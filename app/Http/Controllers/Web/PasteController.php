@@ -17,14 +17,15 @@ use Illuminate\Support\Facades\Auth;
 
 class PasteController extends Controller
 {
-    protected $pasteService;
+//    protected $pasteService;
 
     /**
      * @param PasteService $pasteService
      */
-    public function __construct(PasteService $pasteService)
-    {
-        $this->pasteService = $pasteService;
+    public function __construct(
+        protected PasteService $pasteService
+    ) {
+//        $this->pasteService = $pasteService;
     }
 
     /**
@@ -38,30 +39,31 @@ class PasteController extends Controller
 
         return view('paste.index', compact('pastes', 'userPastes'));
     }
-
+// пакет спайк спар для ларки DTO
     /**
      * @param $hash
      * @return Application|Factory|View|\Illuminate\Foundation\Application|\Illuminate\View\View
      */
     public function show($hash)
     {
-        $paste = Paste::where('hash', $hash)->firstOrFail();
+        $paste = Paste::where('hash', $hash)->firstOrFail(); // в репозиторий
 
-        if ($paste->expires_at && Carbon::now()->gt($paste->expires_at)) {
-            abort(404);
+        if ($paste->expires_at && Carbon::now()->gt($paste->expires_at)) { // в сервис
+            abort(404); // в exepcion
         }
 
         if ($paste->access === 'private' && (!Auth::check() || Auth::id() !== $paste->user_id)) {
-            abort(403);
+            abort(403); //в exepcion
         }
+
         $pastes = $this->pasteService->getNumberLatestPublicPastes(10);
         $userPastes = Auth::check() ? $this->pasteService->getUserPastes(Auth::id()) : [];
 
+        if ($userPastes->expires_at && Carbon::now()->gt($userPastes->expires_at)) { // в сервис
+            abort(404); // в экзепшн
+        }
 
         return view('paste.show', compact('pastes', 'userPastes', 'paste'));
-        // return view('paste.show', compact('paste'));
-
-
     }
 
     /**

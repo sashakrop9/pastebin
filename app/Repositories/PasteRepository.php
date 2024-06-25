@@ -21,6 +21,13 @@ class PasteRepository
 
     public function getUserPastes(int $userId, int $limit): Collection
     {
-        return Paste::where('user_id', $userId)->latest()->take($limit)->get();
+        return Paste::where('user_id', $userId)
+            ->where(function ($query) {
+                $query->where('expires_at', '>', Carbon::now())
+                    ->orWhereNull('expires_at');
+            })
+            ->latest()
+            ->take($limit)
+            ->get();
     }
 }
