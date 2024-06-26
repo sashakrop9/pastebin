@@ -38,8 +38,10 @@
             <label for="access">Access:</label>
             <select id="access" name="access" required>
                 <option value="public">Public</option>
-                <option value="unlisted">Unlisted</option>
-                <option value="private">Private</option>
+                @if(Auth::check())
+                    <option value="unlisted">Unlisted</option>
+                    <option value="private">Private</option>
+                @endif
             </select>
         </div>
         <button type="submit">Create</button>
