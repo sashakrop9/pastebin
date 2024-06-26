@@ -25,10 +25,10 @@ class Dashboard extends Page
     }
 
     /**
-     * @return list<MoonShineComponent>
+     * @return string
      */
     public function components(): array
-	{
+    {
 		return [];
 	}
 }

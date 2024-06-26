@@ -108,4 +108,10 @@ return [
     'socialite' => [
         // 'driver' => 'path_to_image_for_button'
     ],
+
+    'resources' => [
+        \App\MoonShine\Resources\UserResource::class,
+        \App\MoonShine\Resources\PasteResource::class,
+        \App\MoonShine\Resources\ComplaintResource::class,
+    ],
 ];

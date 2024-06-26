@@ -46,7 +46,8 @@ class PasteRepository extends BaseRepository
             ->where('user_id', $userId)
             ->where(function ($query) {
                 $query->where('expires_at', '>', Carbon::now())
-                    ->orWhereNull('expires_at');})
+                    ->orWhereNull('expires_at');
+                })
                 ->latest()->take($limit)
                 ->get();
     }
