@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Exceptions\AccessDeniedException;
+use App\Exceptions\PasteExpiredException;
 use App\Http\Requests\PasteRequest;
 use App\Models\Paste;
 use App\Services\PasteService;
@@ -9,6 +11,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Str;
@@ -40,30 +43,29 @@ class PasteController extends Controller
         return view('paste.index', compact('pastes', 'userPastes'));
     }
 // пакет спайк спар для ларки DTO
+
     /**
      * @param $hash
-     * @return Application|Factory|View|\Illuminate\Foundation\Application|\Illuminate\View\View
+     * @return Application|Factory|View|\Illuminate\Foundation\Application|Response|\Illuminate\View\View
      */
     public function show($hash)
     {
-        $paste = Paste::where('hash', $hash)->firstOrFail(); // в репозиторий
+        try {
+            $paste = $this->pasteService->findByHash($hash); // Получаем пасту через сервис
+            $this->pasteService->checkExpiration($paste); // Проверяем срок действия через сервис
+            $this->pasteService->checkAccess($paste); // Проверяем доступ через сервис
 
-        if ($paste->expires_at && Carbon::now()->gt($paste->expires_at)) { // в сервис
-            abort(404); // в exepcion
+            $pastes = $this->pasteService->getNumberLatestPublicPastes(10); // Получаем последние публичные пасты через сервис
+            $userPastes = auth()->check() ? $this->pasteService->getUserPastes(auth()->id()) : []; // Получаем пасты пользователя через сервис
+
+            return view('paste.show', compact('paste', 'pastes', 'userPastes'));
+        } catch (PasteExpiredException $e) {
+            return response()->view('errors.paste_expired', [], 404); // Возвращаем кастомное представление ошибки
+        } catch (AccessDeniedException $e) {
+            return response()->view('errors.access_denied', [], 403); // Возвращаем кастомное представление ошибки
+        } catch (\Exception $e) {
+            return response()->view('errors.general', [], 500); // Общая обработка ошибок
         }
-
-        if ($paste->access === 'private' && (!Auth::check() || Auth::id() !== $paste->user_id)) {
-            abort(403); //в exepcion
-        }
-
-        $pastes = $this->pasteService->getNumberLatestPublicPastes(10);
-        $userPastes = Auth::check() ? $this->pasteService->getUserPastes(Auth::id()) : [];
-
-        if ($userPastes->expires_at && Carbon::now()->gt($userPastes->expires_at)) { // в сервис
-            abort(404); // в экзепшн
-        }
-
-        return view('paste.show', compact('pastes', 'userPastes', 'paste'));
     }
 
     /**
@@ -84,7 +86,7 @@ class PasteController extends Controller
      */
     public function store(PasteRequest $request)
     {
-        //todo сделать проверку чтобы анонимные пользователи не могли делать приватную пасту
+
         $paste = new Paste;
         $paste->title = $request->title;
         $paste->paste_content = $request->paste_content;
