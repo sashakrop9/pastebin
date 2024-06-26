@@ -56,7 +56,7 @@ class PasteController extends Controller
             $this->pasteService->checkAccess($paste); // Проверяем доступ через сервис
 
             $pastes = $this->pasteService->getNumberLatestPublicPastes(10); // Получаем последние публичные пасты через сервис
-            $userPastes = auth()->check() ? $this->pasteService->getUserPastes(auth()->id()) : []; // Получаем пасты пользователя через сервис
+            $userPastes = auth()->check() ? $this->pasteService->getUserPastes(auth()->id(),10) : []; // Получаем пасты пользователя через сервис
 
             return view('paste.show', compact('paste', 'pastes', 'userPastes'));
         } catch (PasteExpiredException $e) {

@@ -45,6 +45,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('paste.user_pastes', absolute: false));
+        return redirect(route('paste.userPastes', absolute: false));
     }
 }

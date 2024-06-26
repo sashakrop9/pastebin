@@ -5,6 +5,7 @@
         @foreach ($userPastes as $paste)
             <li>
                 <a href="{{ url('/paste/' . $paste->hash) }}">{{ $paste->title }}</a>
+                {{$paste->user_id}}
             </li>
         @endforeach
         @else
