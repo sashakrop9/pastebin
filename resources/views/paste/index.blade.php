@@ -12,3 +12,5 @@
     @include('layouts.partials.latest_public_pastes')
     @include('layouts.partials.latest_user_pastes')
 @endsection
+
+

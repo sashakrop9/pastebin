@@ -30,6 +30,7 @@
         </form>
     @else
         <a href="{{ url('/login') }}">Login</a>
+        <a href="{{ route('login_git') }}">login git</a>
         <a href="{{ url('/register') }}">Register</a>
     @endif
 </header>
