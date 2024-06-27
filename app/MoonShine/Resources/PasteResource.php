@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Paste;
 
+use Illuminate\Http\Request;
+use MoonShine\Fields\Relationships\BelongsTo;
+use MoonShine\Fields\Relationships\HasOne;
 use MoonShine\Fields\Text;
 use MoonShine\Resources\ModelResource;
 use MoonShine\Decorations\Block;
@@ -31,7 +35,8 @@ class PasteResource extends ModelResource
         return [
             Block::make([
                 ID::make()->sortable(),
-                Text::make('Content', 'paste_content')
+                Text::make('Content', 'paste_content')->readonly(),
+                BelongsTo::make('User ID', 'user', resource: new UserResource)
             ])
         ];
     }

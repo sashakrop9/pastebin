@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\MoonShine\Resources\ComplaintResource;
+use App\MoonShine\Resources\PasteResource;
 use App\MoonShine\Resources\UserResource;
+use MoonShine\Models\MoonshineUser;
 use MoonShine\Providers\MoonShineApplicationServiceProvider;
 use MoonShine\MoonShine;
 use MoonShine\Menu\MenuGroup;
@@ -52,10 +54,11 @@ class MoonShineServiceProvider extends MoonShineApplicationServiceProvider
                 ),
             ]),
 
-            MenuGroup::make('Complaints',[
-                MenuItem::make('Complaints', new ComplaintResource())
-            ])
+            MenuItem::make('Complaints', new ComplaintResource()),
 
+            MenuItem::make('paste', new PasteResource()),
+
+            MenuItem::make('user', new UserResource()),
         ];
     }
 

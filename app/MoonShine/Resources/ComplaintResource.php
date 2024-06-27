@@ -34,8 +34,8 @@ class ComplaintResource extends ModelResource
         return [
             Block::make([
                 ID::make()->sortable(),
-                BelongsTo::make('User', 'user', resource: new UserResource)->disabled(),
-                BelongsTo::make('Paste', 'paste', resource: new PasteResource), // Добавляем связь с пастой
+                BelongsTo::make('User', 'user', resource: new UserResource),
+                BelongsTo::make('Paste ID', 'paste', resource: new PasteResource),
                 Text::make('Reason')->readonly(),
                 Text::make('Content', 'paste.paste_content')->readonly()
             ]),
@@ -54,45 +54,3 @@ class ComplaintResource extends ModelResource
     }
 }
 
-/**
- * 'resources' => [
- * [
- * 'label' => 'Жалобы',
- * 'model' => \App\Models\Complaint::class,
- * 'labelField' => 'id', // Поле модели, которое будет отображаться в списках
- * 'fields' => [
- * [
- * 'name' => 'user_id',
- * 'label' => 'Пользователь',
- * 'type' => 'belongsTo',
- * 'belongsToResource' => \App\Models\User::class,
- * ],
- * [
- * 'name' => 'paste_id',
- * 'label' => 'Паста',
- * 'type' => 'belongsTo',
- * 'belongsToResource' => \App\Models\Paste::class,
- * ],
- * [
- * 'name' => 'reason',
- * 'label' => 'Причина',
- * 'type' => 'text',
- * ],
- * [
- * 'name' => 'status',
- * 'label' => 'Статус',
- * 'type' => 'select',
- * 'options' => [
- * 'pending' => 'Ожидание',
- * 'approved' => 'Утверждено',
- * 'rejected' => 'Отклонено',
- * ],
- * ],
- * [
- * 'name' => 'created_at',
- * 'label' => 'Дата создания',
- * 'type' => 'dateTime',
- * ],
- * ],
- * ],
- */

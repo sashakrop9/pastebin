@@ -7,6 +7,7 @@ namespace App\MoonShine\Resources;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 
+use MoonShine\Fields\Text;
 use MoonShine\Resources\ModelResource;
 use MoonShine\Decorations\Block;
 use MoonShine\Fields\ID;
@@ -29,7 +30,8 @@ class UserResource extends ModelResource
     {
         return [
 
-                ID::make()->sortable()
+                ID::make()->sortable(),
+                Text::make('User Name', 'name') -> readonly()
 
         ];
     }
