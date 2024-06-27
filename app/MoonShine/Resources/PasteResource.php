@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use MoonShine\Fields\Relationships\BelongsTo;
 use MoonShine\Fields\Relationships\HasOne;
 use MoonShine\Fields\Text;
+use MoonShine\Fields\Textarea;
 use MoonShine\Resources\ModelResource;
 use MoonShine\Decorations\Block;
 use MoonShine\Fields\ID;
@@ -35,8 +36,11 @@ class PasteResource extends ModelResource
         return [
             Block::make([
                 ID::make()->sortable(),
-                Text::make('Content', 'paste_content')->readonly(),
-                BelongsTo::make('User ID', 'user', resource: new UserResource)
+                Text::make('Title', 'title')->readonly(),
+                BelongsTo::make('Owner', 'user', fn($i) => "$i->name", resource: new UserResource),
+                Textarea::make('Content', 'paste_content')
+                    ->readonly()
+                    ->hideOnIndex(),
             ])
         ];
     }

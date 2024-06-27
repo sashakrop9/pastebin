@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Complaint;
 
 use MoonShine\Fields\Relationships\BelongsTo;
+use MoonShine\Fields\Textarea;
 use MoonShine\Resources\ModelResource;
 use MoonShine\Decorations\Block;
 use MoonShine\Fields\ID;
@@ -34,10 +35,16 @@ class ComplaintResource extends ModelResource
         return [
             Block::make([
                 ID::make()->sortable(),
-                BelongsTo::make('User', 'user', resource: new UserResource),
+                BelongsTo::make('User', 'user', fn($i) => "$i->name", resource: new UserResource),
                 BelongsTo::make('Paste ID', 'paste', resource: new PasteResource),
-                Text::make('Reason')->readonly(),
-                Text::make('Content', 'paste.paste_content')->readonly()
+                Text::make('Reason')
+                    ->readonly()
+                    ->hideOnIndex(),
+                BelongsTo::make('Paste title', 'paste', fn($i) => "$i->title", resource: new PasteResource)
+                    ->hideOnIndex(),
+                Textarea::make('Content', 'paste.paste_content')
+                    ->readonly()
+                    ->hideOnIndex(),
             ]),
         ];
     }

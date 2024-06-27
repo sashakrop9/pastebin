@@ -56,9 +56,9 @@ class MoonShineServiceProvider extends MoonShineApplicationServiceProvider
 
             MenuItem::make('Complaints', new ComplaintResource()),
 
-            MenuItem::make('paste', new PasteResource()),
+            MenuItem::make('Pastes', new PasteResource()),
 
-            MenuItem::make('user', new UserResource()),
+            MenuItem::make('Users', new UserResource()),
         ];
     }
 
