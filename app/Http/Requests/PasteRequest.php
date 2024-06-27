@@ -16,6 +16,9 @@ class PasteRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return string[]
+     */
     function rules()
     {
         return [

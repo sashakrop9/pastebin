@@ -57,6 +57,9 @@ class User extends Authenticatable
         return $this->hasMany(Paste::class);
     }
 
+    /**
+     * @return HasMany
+     */
     public function complaint()
     {
         return $this->hasMany(Complaint::class);

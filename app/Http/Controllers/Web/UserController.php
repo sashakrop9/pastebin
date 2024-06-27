@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Web;
 
 use App\Models\User;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -25,10 +28,16 @@ class UserController extends Controller
         return view('paste.userPastes', compact('user', 'userPastes'));
     }
 
+    /**
+     * @return RedirectResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+     */
     function create_git() {
         return Socialite::driver('github')->redirect();
     }
 
+    /**
+     * @return Application|\Illuminate\Foundation\Application|RedirectResponse|Redirector
+     */
     function callback_git ()
     {
         $githubUser = Socialite::driver('github')->user();

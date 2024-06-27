@@ -6,11 +6,17 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CreateComplaintRequest extends FormRequest
 {
+    /**
+     * @return true
+     */
     public function authorize()
     {
         return true; // Проверка авторизации выполняется в контроллере или маршруте
     }
 
+    /**
+     * @return string[]
+     */
     public function rules()
     {
         return [
@@ -19,6 +25,9 @@ class CreateComplaintRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return string[]
+     */
     public function messages()
     {
         return [

@@ -41,4 +41,10 @@ return [
         'redirect' => 'http://localhost/auth/github/callback',
     ],
 
+    'vk' => [
+        'client_id' => env('VK_CLIENT_ID'),
+        'client_secret' => env('VK_CLIENT_SECRET'),
+        'redirect' => 'http://localhost/auth/vk/callback',
+    ],
+
 ];
