@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Web;
 
 use App\Exceptions\AccessDeniedException;
 use App\Exceptions\PasteExpiredException;
-use App\Http\Requests\PasteRequest;
+use App\Http\Requests\CreatePasteRequest;
 use App\Models\Paste;
 use App\Services\PasteService;
+use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -14,9 +15,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class PasteController extends Controller
 {
@@ -81,10 +81,10 @@ class PasteController extends Controller
     }
 
     /**
-     * @param PasteRequest $request
+     * @param CreatePasteRequest $request
      * @return Application|\Illuminate\Foundation\Application|RedirectResponse|Redirector
      */
-    public function store(PasteRequest $request)
+    public function store(CreatePasteRequest $request)
     {
 
         $paste = new Paste;

@@ -44,7 +44,7 @@ class UserController extends Controller
 
         $user = User::where('email', $githubUser->email)->first();
 
-        $name = $githubUser->name ?? ($user->name ?? 'unknown');
+        $name = $githubUser->name ?? ($user->name ?? $githubUser->email);
 
         $user = User::updateOrCreate(
             [
