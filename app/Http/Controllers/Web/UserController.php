@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
@@ -15,6 +16,13 @@ use Laravel\Socialite\Facades\Socialite;
 
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * Показать профиль пользователя.
      *
@@ -31,35 +39,22 @@ class UserController extends Controller
     /**
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    function create_git() {
+    public function create_git()
+    {
         return Socialite::driver('github')->redirect();
     }
 
     /**
-     * @return Application|\Illuminate\Foundation\Application|RedirectResponse|Redirector
+     * @return
      */
-    function callback_git ()
+    public function callback_git()
     {
         $githubUser = Socialite::driver('github')->user();
+        $user = $this->userService->handleGitHubCallback($githubUser);
 
-        $user = User::where('email', $githubUser->email)->first();
-
-        $name = $githubUser->name ?? ($user->name ?? $githubUser->email);
-
-        $user = User::updateOrCreate(
-            [
-                'email' => $githubUser->email,
-            ],
-            [
-                'name' => $name,
-                'password' => $user->password ?? Str::random(8), // Это значение пароля вряд ли подходит, лучше использовать безопасное значение или зашифрованное
-                'github_id' => $githubUser->id,
-                'github_token' => $githubUser->token,
-                'github_refresh_token' => $githubUser->refreshToken,
-            ]
-        );
         Auth::login($user);
 
-        return redirect('/paste');
+        return redirect(route('user.profile'));
+        //return route('paste.index');
     }
 }

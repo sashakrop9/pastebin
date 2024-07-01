@@ -48,7 +48,8 @@ class PasteRepository extends BaseRepository
                 $query->where('expires_at', '>', Carbon::now())
                     ->orWhereNull('expires_at');
                 })
-                ->latest()->take($limit)
+                ->latest()
+                ->take($limit)
                 ->get();
     }
 
@@ -58,6 +59,15 @@ class PasteRepository extends BaseRepository
      */
     public function findByHash(string $hash): mixed
     {
-        return $this->findWhere(['hash' => $hash])->first();
+        return $this->findWhere(['hash' => $hash]);
+    }
+
+    /**
+     * @param array $data
+     * @return Paste
+     */
+    public function createPaste(array $data): Paste
+    {
+        return Paste::create($data);
     }
 }

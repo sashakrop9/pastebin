@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -20,26 +21,21 @@ class UserController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse
+     * @return UserResource
      */
-    public function profile(Request $request)
+    public function profile()
     {
-        $user = $request->user(); // Получаем текущего аутентифицированного пользователя
-
-        return response()->json([
-            'user' => $user // Отправляем данные пользователя в формате JSON
-        ]);
+        $user = Auth::user();
+        return new UserResource($user);
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse
+     * @return UserResource
      */
-    public function users(Request $request)
+    public function users()
     {
         $users = $this->userService->getAllUsers();
 
-        return response()->json($users);
+        return new UserResource($users);
     }
 }

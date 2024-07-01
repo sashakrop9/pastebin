@@ -4,30 +4,45 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\CreateLoginRequest;
 use App\Http\Requests\CreateRegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\UserService;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    protected $userService;
+
+    /**
+     * @param UserService $userService
+     */
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * @param CreateRegisterRequest $request
-     * @return JsonResponse
+     * @return UserResource
      */
     public function register(CreateRegisterRequest $request)
     {
         $validatedData = $request->validated();
 
-        $user = User::create([
+        $user = $this->userService->registerUser([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => $request->password,
         ]);
 
-        return response()->json(['message' => 'User registered successfully', 'user' => $user]);
+        return new UserResource($user);
     }
 
     /**
@@ -38,26 +53,25 @@ class AuthController extends Controller
     {
         $validatedData = $request->validated();
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
-        $user = Auth::user();
+        $user = $this->userService->authenticateUser($validatedData);
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['token' => $token]);
+        return response()->json([
+            'token' => $token,
+            'user' => new UserResource($user)
+        ]);
     }
+
 
     /**
      * @param Request $request
-     * @return JsonResponse
+     * @return Application|ResponseFactory|\Illuminate\Foundation\Application|Response
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = Auth::user();
+        $this->userService->logoutUser($user);
 
-        return response()->json(['message' => 'Logged out']);
+        return response(null, 204);
     }
 }

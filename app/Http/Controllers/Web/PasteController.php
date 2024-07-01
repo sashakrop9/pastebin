@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\DataTransferObjects\PasteData;
 use App\Exceptions\AccessDeniedException;
 use App\Exceptions\PasteExpiredException;
 use App\Http\Requests\CreatePasteRequest;
@@ -42,7 +43,6 @@ class PasteController extends Controller
 
         return view('paste.index', compact('pastes', 'userPastes'));
     }
-// пакет спайк спар для ларки DTO
 
     /**
      * @param $hash
@@ -50,22 +50,15 @@ class PasteController extends Controller
      */
     public function show($hash)
     {
-        try {
-            $paste = $this->pasteService->findByHash($hash); // Получаем пасту через сервис
-            $this->pasteService->checkExpiration($paste); // Проверяем срок действия через сервис
-            $this->pasteService->checkAccess($paste); // Проверяем доступ через сервис
+        $paste = $this->pasteService->findByHash($hash); // Получаем пасту через сервис
+        $this->pasteService->checkExpiration($paste); // Проверяем срок действия через сервис
+        $this->pasteService->checkAccess($paste); // Проверяем доступ через сервис
 
-            $pastes = $this->pasteService->getNumberLatestPublicPastes(10); // Получаем последние публичные пасты через сервис
-            $userPastes = auth()->check() ? $this->pasteService->getUserPastes(auth()->id(),10) : []; // Получаем пасты пользователя через сервис
+        $pastes = $this->pasteService->getNumberLatestPublicPastes(10); // Получаем последние публичные пасты через сервис
 
-            return view('paste.show', compact('paste', 'pastes', 'userPastes'));
-        } catch (PasteExpiredException $e) {
-            return response()->view('errors.paste_expired', [], 404); // Возвращаем кастомное представление ошибки
-        } catch (AccessDeniedException $e) {
-            return response()->view('errors.access_denied', [], 403); // Возвращаем кастомное представление ошибки
-        } catch (\Exception $e) {
-            return response()->view('errors.general', [], 500); // Общая обработка ошибок
-        }
+        $userPastes = Auth::check() ? $this->pasteService->getUserPastes(Auth::id()) : []; // Получаем пасты пользователя через сервис
+
+        return view('paste.show', compact('paste', 'pastes', 'userPastes'));
     }
 
     /**
@@ -86,31 +79,19 @@ class PasteController extends Controller
      */
     public function store(CreatePasteRequest $request)
     {
+        $data = $request->validated();
+        $data['user_id'] = Auth::id();
+        $data['hash'] = bin2hex(random_bytes(5)); // генерируем случайный хеш
 
-        $paste = new Paste;
-        $paste->title = $request->title;
-        $paste->paste_content = $request->paste_content;
-        $paste->access = $request->access;
-        $paste->language = $request->language;
-        $paste->hash = Str::random(8);
+        $data['expires_at'] = $this->pasteService->determineExpirationDate($data['expires_at']);
 
-        $paste->expires_at = match ($request['expires_at']) {
-            '10min' => Carbon::now()->addMinutes(10),
-            '1hour' => Carbon::now()->addHour(),
-            '3hours' => Carbon::now()->addHours(3),
-            '1day' => Carbon::now()->addDay(),
-            '1week' => Carbon::now()->addWeek(),
-            '1month' => Carbon::now()->addMonth(),
-            'never' => null,
-        };
+        $pasteData = PasteData::fromArray($data);
 
-        if (Auth::check()) {
-            $paste->user_id = Auth::id();
-        }
+        $paste = $this->pasteService->createPaste($pasteData);
 
         $paste->save();
 
-        return redirect('/paste/' . $paste->hash);
+        return redirect(route('paste.show',[$paste->hash]));
     }
 
 
