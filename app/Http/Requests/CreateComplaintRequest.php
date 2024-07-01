@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class CreateComplaintRequest extends FormRequest
 {
     /**
-     * @return true
+     * @return bool
      */
     public function authorize()
     {

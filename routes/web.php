@@ -10,27 +10,30 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
 
-Route::get('/paste', [PasteController::class, 'index'])->name('paste.index');
-Route::get('/paste/create', [PasteController::class, 'create'])->name('paste.create');
-Route::get('/paste/{hash}', [PasteController::class, 'show'])->name('paste.show');
+// Маршруты для паст
+Route::prefix('paste')->group(function () {
+    Route::get('/', [PasteController::class, 'index'])->name('paste.index');
+    Route::get('/create', [PasteController::class, 'create'])->name('paste.create');
+    Route::get('/{hash}', [PasteController::class, 'show'])->name('paste.show');
+    Route::post('/', [PasteController::class, 'store'])->name('paste.store');
+});
 
-Route::post('/paste', [PasteController::class, 'store'])->name('paste.store');
+// Маршруты для аутентификации через GitHub
+Route::prefix('auth')->group(function () {
+    Route::get('/redirect', [UserController::class, 'create_git'])->name('github.login_git');
+    Route::get('/github/callback', [UserController::class, 'callback_git'])->name('github.callback');
+});
 
+// Маршруты для профиля пользователя с Middleware auth
 Route::middleware('auth')->group(function () {
     Route::get('/user/profile', [UserController::class, 'profile'])->name('user.profile');
 });
 
-Route::post('complaints', [ComplaintController::class, 'store'])->name('complaints.store');
-Route::delete('complaints/{complaint}', [ComplaintController::class, 'destroy'])->name('complaints.destroy');
-
-Route::get('/paste', [PasteController::class, 'index'])->name('paste.index');
-
-Route::get('/auth/redirect', [UserController::class, 'create_git'])
-    ->name('login_git');
-
-Route::get('/auth/github/callback', [UserController::class, 'callback_git'])
-    ->name('github.callback');
-
+// Маршруты для жалоб
+Route::prefix('complaints')->group(function () {
+    Route::post('/', [ComplaintController::class, 'store'])->name('complaints.store');
+    Route::delete('/{complaint}', [ComplaintController::class, 'destroy'])->name('complaints.destroy');
+});
 
 
 // Breeze routes
