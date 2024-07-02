@@ -10,6 +10,7 @@ use App\Repositories\PasteRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 class PasteService
 {
@@ -52,6 +53,7 @@ class PasteService
     public function findByHash(string $hash)
     {
         $paste = $this->pasteRepository->findByHash($hash)->firstOrFail();
+
         $this->checkExpiration($paste);
         $this->checkAccess($paste);
         return $paste;
@@ -100,9 +102,11 @@ class PasteService
     /**
      * @param PasteData $pasteData
      * @return Paste
+     * @throws ValidatorException
      */
     public function createPaste(PasteData $pasteData)
     {
+        $pasteData->expires_at = $this->determineExpirationDate($pasteData->expires_at);
         return $this->pasteRepository->createPaste($pasteData);
     }
 }

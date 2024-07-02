@@ -11,7 +11,6 @@ class PasteData
      * @param string|null $expires_at
      * @param string $language
      * @param int $user_id
-     * @param string $hash
      */
     public function __construct(
         public string $title,
