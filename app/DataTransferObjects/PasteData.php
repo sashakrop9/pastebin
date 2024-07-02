@@ -18,7 +18,7 @@ class PasteData
         public string $access,
         public ?string $expires_at,
         public string $language,
-        public int $user_id,
+        public ?int $user_id,
     ) {}
 
     /**

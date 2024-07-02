@@ -31,7 +31,7 @@ class UserController extends Controller
     public function profile()
     {
         $user = Auth::user();
-        $userPastes = $user->pastes()->latest()->take(10)->get();
+        $userPastes = $user->pastes()->latest()->paginate(10);
 
         return view('paste.userPastes', compact('user', 'userPastes'));
     }
