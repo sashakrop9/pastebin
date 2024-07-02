@@ -59,7 +59,6 @@ class PasteService
         return $paste;
     }
 
-
     /**
      * @param $paste
      * @return void

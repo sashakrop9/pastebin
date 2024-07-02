@@ -60,8 +60,6 @@ class PasteController extends Controller
 
         $data['user_id'] = Auth::id();
 
-        $data['expires_at'] = $this->pasteService->determineExpirationDate($data['expires_at']);
-
         $pasteData = PasteData::fromArray($data);
 
         $paste = $this->pasteService->createPaste($pasteData);
@@ -83,8 +81,6 @@ class PasteController extends Controller
         $paste = Paste::where('hash', $hash)->firstOrFail();
 
         $this->pasteService->checkAccess($paste);
-
-        $data['expires_at'] = $this->pasteService->determineExpirationDate($data['expires_at']);
 
         $paste->update($data);
 
