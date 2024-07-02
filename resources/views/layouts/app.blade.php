@@ -30,7 +30,8 @@
         </form>
     @else
         <a href="{{ route('login') }}">Login</a>
-        <a href="{{ route('github.login_git') }}">login git</a>
+        <a href="{{ route('socia.login' , ['github']) }}">login git</a>
+        <a href="{{ route('socia.login', ['vkontakte']) }}">login VK</a>
         <a href="{{ route('register') }}">Register</a>
     @endif
 </header>

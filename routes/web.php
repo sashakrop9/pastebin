@@ -14,10 +14,10 @@ Route::prefix('paste')->group(function () {
     Route::post('/', [PasteController::class, 'store'])->name('paste.store');
 });
 
-// Маршруты для аутентификации через GitHub
+// Маршруты для аутентификации через Socialite
 Route::prefix('auth')->group(function () {
-    Route::get('/redirect', [UserController::class, 'create_git'])->name('github.login_git');
-    Route::get('/github/callback', [UserController::class, 'callback_git'])->name('github.callback');
+    Route::get('/redirect/{driver}', [UserController::class, 'create_socia'])->name('socia.login');
+    Route::get('/{driver}/callback', [UserController::class, 'callback_socia'])->name('socia.callback');
 });
 
 // Маршруты для профиля пользователя с Middleware auth

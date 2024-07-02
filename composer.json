@@ -11,7 +11,8 @@
         "laravel/socialite": "^5.15",
         "laravel/tinker": "^2.9",
         "moonshine/moonshine": "^2.16",
-        "prettus/l5-repository": "^2.9"
+        "prettus/l5-repository": "^2.9",
+        "socialiteproviders/vkontakte": "^5.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

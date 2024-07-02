@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Laravel\Socialite\Contracts\User as GitHubUserContract;
+use Laravel\Socialite\Contracts\User as UserContract;
 use Prettus\Validator\Exceptions\ValidatorException;
 
 class UserService
@@ -69,24 +69,20 @@ class UserService
         Auth::logout();
     }
 
-    /**
-     * @param GitHubUserContract $githubUser
-     * @return mixed
-     */
-    public function handleGitHubCallback(GitHubUserContract $githubUser)
+    public function handleCallback(UserContract $sociaUser)
     {
-        $user = $this->userRepository->findByEmail($githubUser->getEmail());
+        $user = $this->userRepository->findByEmail($sociaUser->getEmail());
 
-        $name = $githubUser->getName() ?? ($user->name ?? $githubUser->getEmail());
+        $name = $sociaUser->getName() ?? ($user->name ?? $sociaUser->getEmail());
 
         $userData = [
             'name' => $name,
             'password' => $user->password ?? bcrypt(Str::random(8)),
-            'github_id' => $githubUser->getId(),
-            'github_token' => $githubUser->token,
-            'github_refresh_token' => $githubUser->refreshToken,
+            'github_id' => $sociaUser->getId(),
+            'github_token' => $sociaUser->token,
+            'github_refresh_token' => $sociaUser->refreshToken,
         ];
 
-        return $this->userRepository->updateOrCreate(['email' => $githubUser->getEmail()], $userData);
+        return $this->userRepository->updateOrCreate(['email' => $sociaUser->getEmail()], $userData);
     }
 }

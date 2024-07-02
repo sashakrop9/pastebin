@@ -39,18 +39,18 @@ class UserController extends Controller
     /**
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function create_git()
+    public function create_socia($driver)
     {
-        return Socialite::driver('github')->redirect();
+        return Socialite::driver($driver)->redirect();
     }
 
     /**
      * @return Application|\Illuminate\Foundation\Application|RedirectResponse|Redirector
      */
-    public function callback_git()
+    public function callback_socia($driver)
     {
-        $githubUser = Socialite::driver('github')->user();
-        $user = $this->userService->handleGitHubCallback($githubUser);
+        $sociaUser = Socialite::driver($driver)->user();
+        $user = $this->userService->handleCallback($sociaUser);
 
         Auth::login($user);
 

@@ -38,7 +38,12 @@ return [
     'github' => [
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'redirect' => env('GITHUB_REDIRECT_URL', 'http://localhost/auth/github/callback') ,
+        'redirect' => env('GITHUB_REDIRECT_URL')//, 'http://localhost/socia/github/callback') ,
     ],
 
+    'vkontakte' => [
+        'client_id' => env('VKONTAKTE_CLIENT_ID'),
+        'client_secret' => env('VKONTAKTE_CLIENT_SECRET'),
+        'redirect' => env('VKONTAKTE_REDIRECT_URI')//, 'http://localhost/socia/VK/callback')
+    ],
 ];
