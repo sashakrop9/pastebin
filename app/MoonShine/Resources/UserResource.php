@@ -29,8 +29,11 @@ class UserResource extends ModelResource
     public function fields(): array
     {
         return [
-                ID::make()->sortable(),
-                Text::make('User Name', 'name')->readonly()
+            ID::make()->sortable(),
+            Text::make('User Name', 'name')->readonly(),
+            Text::make('Email', 'email')
+                ->readonly()
+                ->hideOnIndex(),
         ];
     }
 

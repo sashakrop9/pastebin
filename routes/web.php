@@ -1,13 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Web\ComplaintController;
 use App\Http\Controllers\Web\UserController;
 use App\Http\Controllers\Web\PasteController;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Laravel\Socialite\Facades\Socialite;
 
 
 // Маршруты для паст

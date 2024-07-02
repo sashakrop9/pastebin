@@ -1,10 +1,12 @@
 <?php
 namespace App\Repositories;
 
+use App\DataTransferObjects\PasteData;
 use App\Models\Paste;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Prettus\Repository\Eloquent\BaseRepository;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 class PasteRepository extends BaseRepository
 {
@@ -63,11 +65,20 @@ class PasteRepository extends BaseRepository
     }
 
     /**
-     * @param array $data
+     * @param PasteData $data
      * @return Paste
+     * @throws ValidatorException
      */
-    public function createPaste(array $data): Paste
+    public function createPaste(PasteData $pasteData): Paste
     {
-        return Paste::create($data);
+        return $this->create([
+            'title' => $pasteData->title,
+            'paste_content' => $pasteData->paste_content,
+            'access' => $pasteData->access,
+            'expires_at' => $pasteData->expires_at,
+            'language' => $pasteData->language,
+            'user_id' => $pasteData->user_id,
+            'hash' => bin2hex(random_bytes(5)),
+        ]);
     }
 }

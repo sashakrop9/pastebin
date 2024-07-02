@@ -46,13 +46,11 @@ class PasteController extends Controller
 
     /**
      * @param $hash
-     * @return Application|Factory|View|\Illuminate\Foundation\Application|Response|\Illuminate\View\View
+     * @return Application|Factory|\Illuminate\Foundation\Application|\Illuminate\View\View|View
      */
     public function show($hash)
     {
         $paste = $this->pasteService->findByHash($hash); // Получаем пасту через сервис
-        $this->pasteService->checkExpiration($paste); // Проверяем срок действия через сервис
-        $this->pasteService->checkAccess($paste); // Проверяем доступ через сервис
 
         $pastes = $this->pasteService->getNumberLatestPublicPastes(10); // Получаем последние публичные пасты через сервис
 
@@ -80,8 +78,8 @@ class PasteController extends Controller
     public function store(CreatePasteRequest $request)
     {
         $data = $request->validated();
+
         $data['user_id'] = Auth::id();
-        $data['hash'] = bin2hex(random_bytes(5)); // генерируем случайный хеш
 
         $data['expires_at'] = $this->pasteService->determineExpirationDate($data['expires_at']);
 

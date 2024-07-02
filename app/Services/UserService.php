@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DataTransferObjects\UserData;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Contracts\User as GitHubUserContract;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 class UserService
 {
@@ -34,17 +36,12 @@ class UserService
     /**
      * @param array $data
      * @return User
+     * @throws ValidatorException
      */
-    public function registerUser(array $data)
+    public function registerUser(UserData $data)
     {
-        // Валидация данных, если необходимо
-
         // Создание пользователя через репозиторий
-        return $this->userRepository->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
+        return $this->userRepository->createUser($data);
     }
 
     /**

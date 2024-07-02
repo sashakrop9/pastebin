@@ -2,15 +2,13 @@
 
 namespace App\DataTransferObjects;
 
-use Carbon\Carbon;
-
 class PasteData
 {
     /**
      * @param string $title
      * @param string $paste_content
      * @param string $access
-     * @param string $expires_at
+     * @param string|null $expires_at
      * @param string $language
      * @param int $user_id
      * @param string $hash
@@ -22,7 +20,6 @@ class PasteData
         public ?string $expires_at,
         public string $language,
         public int $user_id,
-        public string $hash
     ) {}
 
     /**
@@ -38,7 +35,6 @@ class PasteData
             $data['expires_at'],
             $data['language'],
             $data['user_id'],
-            $data['hash']
         );
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Paste;
 use App\Repositories\PasteRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class PasteService
 {
@@ -45,10 +46,15 @@ class PasteService
     /**
      * @param string $hash
      * @return Collection
+     * @throws PasteExpiredException
+     * @throws AccessDeniedException
      */
     public function findByHash(string $hash)
     {
-        return $this->pasteRepository->findByHash($hash)->firstOrFail();
+        $paste = $this->pasteRepository->findByHash($hash)->firstOrFail();
+        $this->checkExpiration($paste);
+        $this->checkAccess($paste);
+        return $paste;
     }
 
 
@@ -69,7 +75,7 @@ class PasteService
      */
     public function checkAccess($paste)
     {
-        if ($paste->access === 'private' && (!auth()->check() || auth()->id() !== $paste->user_id)) {
+        if ($paste->access === 'private' && (!Auth::check() || Auth::id() !== $paste->user_id)) {
             throw new AccessDeniedException();
         }
     }
@@ -97,14 +103,6 @@ class PasteService
      */
     public function createPaste(PasteData $pasteData)
     {
-        return $this->pasteRepository->createPaste([
-            'title' => $pasteData->title,
-            'paste_content' => $pasteData->paste_content,
-            'access' => $pasteData->access,
-            'expires_at' => $pasteData->expires_at,
-            'language' => $pasteData->language,
-            'user_id' => $pasteData->user_id,
-            'hash' => $pasteData->hash,
-        ]);
+        return $this->pasteRepository->createPaste($pasteData);
     }
 }

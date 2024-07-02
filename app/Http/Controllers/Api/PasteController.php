@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\DataTransferObjects\PasteData;
 use App\Exceptions\AccessDeniedException;
+use App\Exceptions\PasteExpiredException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreatePasteRequest;
 use App\Http\Resources\PasteResource;
@@ -13,6 +14,7 @@ use App\Services\PasteService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Random\RandomException;
 
@@ -27,7 +29,7 @@ class PasteController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function index()
     {
@@ -38,26 +40,25 @@ class PasteController extends Controller
     /**
      * @param $hash
      * @return PasteResource
+     * @throws AccessDeniedException
+     * @throws PasteExpiredException
      */
     public function show($hash)
     {
             $paste = $this->pasteService->findByHash($hash);
-            $this->pasteService->checkExpiration($paste);
-            $this->pasteService->checkAccess($paste);
 
-            return new PasteResource($paste);
+            return PasteResource::make($paste);
     }
 
     /**
      * @param CreatePasteRequest $request
      * @return PasteResource
-     * @throws RandomException
      */
     public function store(CreatePasteRequest $request)
     {
         $data = $request->validated();
+
         $data['user_id'] = Auth::id();
-        $data['hash'] = bin2hex(random_bytes(5)); // генерируем случайный хеш
 
         $data['expires_at'] = $this->pasteService->determineExpirationDate($data['expires_at']);
 
@@ -66,7 +67,7 @@ class PasteController extends Controller
         $paste = $this->pasteService->createPaste($pasteData);
 
 
-        return new PasteResource($paste);
+        return PasteResource::make($paste);
     }
 
     /**
@@ -80,25 +81,25 @@ class PasteController extends Controller
         $data = $request->validated();
 
         $paste = Paste::where('hash', $hash)->firstOrFail();
-        // Дополнительная проверка доступа, если необходимо
+
         $this->pasteService->checkAccess($paste);
 
         $data['expires_at'] = $this->pasteService->determineExpirationDate($data['expires_at']);
 
         $paste->update($data);
 
-        return new PasteResource($paste);
+        return PasteResource::make($paste);
     }
 
     /**
      * @param $hash
      * @return JsonResponse
      * @throws AccessDeniedException
+     * @throws PasteExpiredException
      */
     public function destroy($hash)
     {
         $paste = $this->pasteService->findByHash($hash);
-        $this->pasteService->checkAccess($paste);
 
         $paste->delete();
 

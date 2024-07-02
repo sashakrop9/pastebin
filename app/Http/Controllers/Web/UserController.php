@@ -45,7 +45,7 @@ class UserController extends Controller
     }
 
     /**
-     * @return
+     * @return Application|\Illuminate\Foundation\Application|RedirectResponse|Redirector
      */
     public function callback_git()
     {
@@ -55,6 +55,5 @@ class UserController extends Controller
         Auth::login($user);
 
         return redirect(route('user.profile'));
-        //return route('paste.index');
     }
 }

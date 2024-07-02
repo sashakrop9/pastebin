@@ -25,8 +25,7 @@ class UserController extends Controller
      */
     public function profile()
     {
-        $user = Auth::user();
-        return new UserResource($user);
+        return UserResource::make(Auth::user());
     }
 
     /**
@@ -36,6 +35,6 @@ class UserController extends Controller
     {
         $users = $this->userService->getAllUsers();
 
-        return new UserResource($users);
+        return UserResource::make($users);
     }
 }

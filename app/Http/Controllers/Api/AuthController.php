@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DataTransferObjects\UserData;
 use App\Http\Requests\CreateLoginRequest;
 use App\Http\Requests\CreateRegisterRequest;
 use App\Http\Resources\UserResource;
@@ -15,6 +16,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 class AuthController extends Controller
 {
@@ -31,18 +33,17 @@ class AuthController extends Controller
     /**
      * @param CreateRegisterRequest $request
      * @return UserResource
+     * @throws ValidatorException
      */
     public function register(CreateRegisterRequest $request)
     {
-        $validatedData = $request->validated();
+        $data = $request->validated();
 
-        $user = $this->userService->registerUser([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
+        $pasteData = userData::fromArray($data);
 
-        return new UserResource($user);
+        $user = $this->userService->registerUser($pasteData);
+
+        return UserResource::make($user);
     }
 
     /**
@@ -58,10 +59,9 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => new UserResource($user)
+            'user' => UserResource::make($user)
         ]);
     }
-
 
     /**
      * @param Request $request
