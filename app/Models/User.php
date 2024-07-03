@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -22,7 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'github_id',
+        'socia_id',
         'token',
         'refresh_token',
     ];
@@ -64,5 +65,13 @@ class User extends Authenticatable
     public function complaint()
     {
         return $this->hasMany(Complaint::class);
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function sociaUser()
+    {
+        return $this->hasOne(SociaUser::class);
     }
 }

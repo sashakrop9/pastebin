@@ -49,8 +49,7 @@ class UserController extends Controller
      */
     public function callback_socia($driver)
     {
-        $sociaUser = Socialite::driver($driver)->user();
-        $user = $this->userService->handleCallback($sociaUser);
+        $user = $this->userService->handleCallback(Socialite::driver($driver)->user());
 
         Auth::login($user);
 

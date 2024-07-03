@@ -4,10 +4,15 @@ namespace App\DataTransferObjects;
 
 class UserData
 {
+    /**
+     * @param string $name
+     * @param string $email
+     * @param string|null $password
+     */
     public function __construct(
         public string $name,
         public string $email,
-        public string $password,
+        public ?string $password,
     ) {}
 
     /**

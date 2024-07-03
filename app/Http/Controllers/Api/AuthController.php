@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DataTransferObjects\SociaData;
 use App\DataTransferObjects\UserData;
 use App\Http\Requests\CreateLoginRequest;
 use App\Http\Requests\CreateRegisterRequest;
@@ -39,9 +40,9 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        $pasteData = userData::fromArray($data);
+        $userData = UserData::fromArray($data);
 
-        $user = $this->userService->registerUser($pasteData);
+        $user = $this->userService->registerUser($userData);
 
         return UserResource::make($user);
     }
@@ -52,9 +53,11 @@ class AuthController extends Controller
      */
     public function login(CreateLoginRequest $request)
     {
-        $validatedData = $request->validated();
+        $data = $request->validated();
 
-        $user = $this->userService->authenticateUser($validatedData);
+        $userData = UserData::fromArray($data);
+
+        $user = $this->userService->authenticateUser($userData);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

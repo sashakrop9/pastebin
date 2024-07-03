@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DataTransferObjects\SociaData;
 use App\DataTransferObjects\UserData;
 use App\Models\User;
 use App\Repositories\UserRepository;
@@ -45,12 +46,16 @@ class UserService
     }
 
     /**
-     * @param array $credentials
+     * @param SociaData $credentials
      * @return User|Authenticatable|null
      */
-    public function authenticateUser(array $credentials)
+    public function authenticateUser(UserData $credentials)
     {
-        if (!Auth::attempt($credentials)) {
+        if (!Auth::attempt([
+            'name' => $credentials->name,
+            'email' => $credentials->email,
+            'password' => $credentials->password
+        ])) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -65,24 +70,45 @@ class UserService
      */
     public function logoutUser($user)
     {
-        $user->currentAccessToken()->delete();
         Auth::logout();
+        $user->currentAccessToken()->delete();
     }
 
+    /**
+     * @throws ValidatorException
+     */
     public function handleCallback(UserContract $sociaUser)
     {
         $user = $this->userRepository->findByEmail($sociaUser->getEmail());
 
-        $name = $sociaUser->getName() ?? ($user->name ?? $sociaUser->getEmail());
+        if ($user === null) {
+            // Логика для случая, когда пользователь не найден
+            $name = $sociaUser->getName() ?? $sociaUser->getEmail();
+            $sociaData = SociaData::fromArray([
+                'socia_id' => $sociaUser->getId(),
+                'token' => $sociaUser->token,
+                'user_id' => null
+            ]);
+        }
+        else{
+            $name = $sociaUser->getName() ?? $sociaUser->getEmail();
+            $sociaData = SociaData::fromArray([
+                'socia_id' => $sociaUser->getId(),
+                'token' =>$sociaUser->token,
+                'user_id' => $user->id
+            ]);
+        }
 
-        $userData = [
+        $userData = UserData::fromArray([
             'name' => $name,
-            'password' => $user->password ?? bcrypt(Str::random(8)),
-            'github_id' => $sociaUser->getId(),
-            'github_token' => $sociaUser->token,
-            'github_refresh_token' => $sociaUser->refreshToken,
-        ];
+            'password' => bin2hex(random_bytes(5)),
+            'email' => $sociaUser->getEmail()
+        ]);
 
-        return $this->userRepository->updateOrCreate(['email' => $sociaUser->getEmail()], $userData);
+        if ($user===null) {
+            return $this->userRepository->createSociaUser($userData, $sociaData);
+        } else {
+            return $this->userRepository->updateUser($userData, $sociaData);
+        }
     }
 }

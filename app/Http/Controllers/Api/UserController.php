@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,12 +30,10 @@ class UserController extends Controller
     }
 
     /**
-     * @return UserResource
+     * @return AnonymousResourceCollection
      */
     public function users()
     {
-        $users = $this->userService->getAllUsers();
-
-        return UserResource::make($users);
+        return UserResource::collection($this->userService->getAllUsers());
     }
 }
