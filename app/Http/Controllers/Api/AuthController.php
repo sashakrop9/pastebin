@@ -2,32 +2,49 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DataTransferObjects\SociaData;
+use App\DataTransferObjects\UserData;
 use App\Http\Requests\CreateLoginRequest;
 use App\Http\Requests\CreateRegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\UserService;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 class AuthController extends Controller
 {
+    protected $userService;
+
+    /**
+     * @param UserService $userService
+     */
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * @param CreateRegisterRequest $request
-     * @return JsonResponse
+     * @return UserResource
+     * @throws ValidatorException
      */
     public function register(CreateRegisterRequest $request)
     {
-        $validatedData = $request->validated();
+        $data = $request->validated();
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+        $userData = UserData::fromArray($data);
 
-        return response()->json(['message' => 'User registered successfully', 'user' => $user]);
+        $user = $this->userService->registerUser($userData);
+
+        return UserResource::make($user);
     }
 
     /**
@@ -36,28 +53,27 @@ class AuthController extends Controller
      */
     public function login(CreateLoginRequest $request)
     {
-        $validatedData = $request->validated();
+        $data = $request->validated();
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
+        $userData = UserData::fromArray($data);
 
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $authUserEntity = $this->userService->authenticateUser($userData);
 
-        return response()->json(['token' => $token]);
+        $userResource = UserResource::make($authUserEntity->user);
+        $userResource->withToken = $authUserEntity->token;
+
+        return $userResource;
     }
 
     /**
      * @param Request $request
-     * @return JsonResponse
+     * @return Application|ResponseFactory|\Illuminate\Foundation\Application|Response
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = Auth::user();
+        $this->userService->logoutUser($user);
 
-        return response()->json(['message' => 'Logged out']);
+        return response(null, 204);
     }
 }

@@ -13,6 +13,9 @@
         @empty
             <li>No pastes found.</li>
         @endforelse
+            <div class="pagination">
+                {{ $userPastes->links() }}
+            </div>
     </ul>
 @endsection
 

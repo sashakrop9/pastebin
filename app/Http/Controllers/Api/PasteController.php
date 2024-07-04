@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DataTransferObjects\PasteData;
 use App\Exceptions\AccessDeniedException;
+use App\Exceptions\PasteExpiredException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreatePasteRequest;
 use App\Http\Resources\PasteResource;
@@ -12,22 +14,22 @@ use App\Services\PasteService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Random\RandomException;
 
 class PasteController extends Controller
 {
-    protected $pasteRepository;
+
     protected $pasteService;
 
-    public function __construct(PasteRepository $pasteRepository, PasteService $pasteService)
+    public function __construct(PasteService $pasteService)
     {
-        $this->pasteRepository = $pasteRepository;
         $this->pasteService = $pasteService;
     }
 
     /**
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public function index()
     {
@@ -37,45 +39,33 @@ class PasteController extends Controller
 
     /**
      * @param $hash
-     * @return JsonResponse
+     * @return PasteResource
+     * @throws AccessDeniedException
+     * @throws PasteExpiredException
      */
     public function show($hash)
     {
-        try {
-            $paste = $this->pasteRepository->findByHash($hash);
-            $this->pasteService->checkExpiration($paste);
-            $this->pasteService->checkAccess($paste);
+            $paste = $this->pasteService->findByHash($hash);
 
-            return response()->json($paste);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 404);
-        }
+            return PasteResource::make($paste);
     }
 
     /**
      * @param CreatePasteRequest $request
      * @return PasteResource
-     * @throws RandomException
      */
     public function store(CreatePasteRequest $request)
     {
         $data = $request->validated();
+
         $data['user_id'] = Auth::id();
-        $data['hash'] = bin2hex(random_bytes(5)); // генерируем случайный хеш
 
-        $data['expires_at'] = match ($request->input('expires_at')) {
-            '10min' => Carbon::now()->addMinutes(10),
-            '1hour' => Carbon::now()->addHour(),
-            '3hours' => Carbon::now()->addHours(3),
-            '1day' => Carbon::now()->addDay(),
-            '1week' => Carbon::now()->addWeek(),
-            '1month' => Carbon::now()->addMonth(),
-            default => null,
-        };
+        $pasteData = PasteData::fromArray($data);
 
-        $paste = Paste::create($data);
+        $paste = $this->pasteService->createPaste($pasteData);
 
-        return new PasteResource($paste);
+
+        return PasteResource::make($paste);
     }
 
     /**
@@ -89,33 +79,23 @@ class PasteController extends Controller
         $data = $request->validated();
 
         $paste = Paste::where('hash', $hash)->firstOrFail();
-        // Дополнительная проверка доступа, если необходимо
-        $this->pasteService->checkAccess($paste);
 
-        $data['expires_at'] = match ($request->input('expires_at')) {
-            '10min' => Carbon::now()->addMinutes(10),
-            '1hour' => Carbon::now()->addHour(),
-            '3hours' => Carbon::now()->addHours(3),
-            '1day' => Carbon::now()->addDay(),
-            '1week' => Carbon::now()->addWeek(),
-            '1month' => Carbon::now()->addMonth(),
-            default => null,
-        };
+        $this->pasteService->checkAccess($paste);
 
         $paste->update($data);
 
-        return new PasteResource($paste);
+        return PasteResource::make($paste);
     }
 
     /**
      * @param $hash
      * @return JsonResponse
      * @throws AccessDeniedException
+     * @throws PasteExpiredException
      */
     public function destroy($hash)
     {
-        $paste = $this->pasteRepository->findByHash($hash);
-        $this->pasteService->checkAccess($paste);
+        $paste = $this->pasteService->findByHash($hash);
 
         $paste->delete();
 

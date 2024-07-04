@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateComplaintRequest;
 use App\Models\Complaint;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class ComplaintController extends Controller
 {
@@ -17,7 +18,7 @@ class ComplaintController extends Controller
     {
         // Валидация прошла успешно, можно сохранять жалобу
         $complaint = new Complaint();
-        $complaint->user_id = auth()->id(); // или $request->user()->id;
+        $complaint->user_id = Auth::id();
         $complaint->paste_id = $request->input('paste_id');
         $complaint->reason = $request->input('reason');
         $complaint->status = 'pending'; // статус по умолчанию

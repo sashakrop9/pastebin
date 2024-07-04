@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\DataTransferObjects\PasteData;
 use App\Exceptions\AccessDeniedException;
 use App\Exceptions\PasteExpiredException;
 use App\Models\Paste;
 use App\Repositories\PasteRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Prettus\Validator\Exceptions\ValidatorException;
 
 class PasteService
 {
@@ -44,12 +47,17 @@ class PasteService
     /**
      * @param string $hash
      * @return Collection
+     * @throws PasteExpiredException
+     * @throws AccessDeniedException
      */
     public function findByHash(string $hash)
     {
-        return $this->pasteRepository->findByHash($hash);
-    }
+        $paste = $this->pasteRepository->findByHash($hash)->firstOrFail();
 
+        $this->checkExpiration($paste);
+        $this->checkAccess($paste);
+        return $paste;
+    }
 
     /**
      * @param $paste
@@ -68,8 +76,36 @@ class PasteService
      */
     public function checkAccess($paste)
     {
-        if ($paste->access === 'private' && (!auth()->check() || auth()->id() !== $paste->user_id)) {
+        if ($paste->access === 'private' && (!Auth::check() || Auth::id() !== $paste->user_id)) {
             throw new AccessDeniedException();
         }
+    }
+
+    /**
+     * @param string|null $expiresAt
+     * @return Carbon|null
+     */
+    public function determineExpirationDate(string $expiresAt = null)
+    {
+        return match ($expiresAt) {
+            '10min' => Carbon::now()->addMinutes(10),
+            '1hour' => Carbon::now()->addHour(),
+            '3hours' => Carbon::now()->addHours(3),
+            '1day' => Carbon::now()->addDay(),
+            '1week' => Carbon::now()->addWeek(),
+            '1month' => Carbon::now()->addMonth(),
+            default => null,
+        };
+    }
+
+    /**
+     * @param PasteData $pasteData
+     * @return Paste
+     * @throws ValidatorException
+     */
+    public function createPaste(PasteData $pasteData)
+    {
+        $pasteData->expires_at = $this->determineExpirationDate($pasteData->expires_at);
+        return $this->pasteRepository->createPaste($pasteData);
     }
 }

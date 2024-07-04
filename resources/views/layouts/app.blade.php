@@ -29,9 +29,10 @@
             <button type="submit" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer;">Logout</button>
         </form>
     @else
-        <a href="{{ url('/login') }}">Login</a>
-        <a href="{{ route('login_git') }}">login git</a>
-        <a href="{{ url('/register') }}">Register</a>
+        <a href="{{ route('login') }}">Login</a>
+        <a href="{{ route('socia.login' , ['github']) }}">login git</a>
+        <a href="{{ route('socia.login', ['vkontakte']) }}">login VK</a>
+        <a href="{{ route('register') }}">Register</a>
     @endif
 </header>
 <main>
