@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DataTransferObjects\SociaData;
 use App\DataTransferObjects\UserData;
+use App\Entities\AuthUserEntity;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -47,7 +48,7 @@ class UserService
 
     /**
      * @param SociaData $credentials
-     * @return User|Authenticatable|null
+     * @return AuthUserEntity
      */
     public function authenticateUser(UserData $credentials)
     {
@@ -60,8 +61,10 @@ class UserService
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-        return Auth::user();
+        return new AuthUserEntity($user, $token);
     }
 
     /**

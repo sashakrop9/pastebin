@@ -57,13 +57,12 @@ class AuthController extends Controller
 
         $userData = UserData::fromArray($data);
 
-        $user = $this->userService->authenticateUser($userData);
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $authUserEntity = $this->userService->authenticateUser($userData);
 
-        return response()->json([
-            'token' => $token,
-            'user' => UserResource::make($user)
-        ]);
+        $userResource = UserResource::make($authUserEntity->user);
+        $userResource->withToken = $authUserEntity->token;
+
+        return $userResource;
     }
 
     /**

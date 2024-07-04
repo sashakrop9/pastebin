@@ -13,7 +13,7 @@ class SociaData
     public function __construct(
         public string $socia_id,
         public string $token,
-        public ?int $user_id,
+        public int $user_id,
     ) {}
 
     /**

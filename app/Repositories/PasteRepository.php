@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use App\DataTransferObjects\PasteData;
+use App\Enums\AccessType;
 use App\Models\Paste;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,7 +27,7 @@ class PasteRepository extends BaseRepository
     public function getNumberLatestPublicPastes(int $limit): Collection
     {
         return $this->model -> Newquery()
-            ->where('access', 'public')
+            ->where('access', AccessType::PUBLIC)
                 ->where(function ($query) {
                     $query->where('expires_at', '>', Carbon::now())
                         ->orWhereNull('expires_at');

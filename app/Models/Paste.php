@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AccessType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,6 @@ class Paste extends Model
         'paste_content',
         'language',
         'expires_at',
-        'access',
     ];
 
     protected $attributes = [
@@ -31,4 +31,8 @@ class Paste extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected $casts = [
+        'access' => AccessType::class,
+    ];
 }

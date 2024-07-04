@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources;
 
+use App\Enums\AccessType;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Paste;
 
 use Illuminate\Http\Request;
+use MoonShine\Fields\Enum;
 use MoonShine\Fields\Relationships\BelongsTo;
 use MoonShine\Fields\Relationships\HasOne;
+use MoonShine\Fields\Slug;
 use MoonShine\Fields\Text;
 use MoonShine\Fields\Textarea;
 use MoonShine\Resources\ModelResource;
@@ -38,6 +41,10 @@ class PasteResource extends ModelResource
                 ID::make()->sortable(),
                 Text::make('Title', 'title')->readonly(),
                 BelongsTo::make('Owner', 'user', fn($i) => "$i->name", resource: new UserResource),
+                Enum::make('Access')
+                    ->attach(AccessType::class)
+                    ->readonly()
+                    ->hideOnIndex(),
                 Textarea::make('Content', 'paste_content')
                     ->readonly()
                     ->hideOnIndex(),
